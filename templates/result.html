@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Звіт аналізу</title>
+
+    <!-- Bootstrap для стилізації -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- JS бібліотеки для взаємодії -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Графіки -->
+    <script src="https://unpkg.com/vis-network@9.1.2/dist/vis-network.min.js"></script> <!-- Граф залежностей -->
+    <link href="https://unpkg.com/vis-network@9.1.2/styles/vis-network.min.css" rel="stylesheet" />
+<link href="/static/css/main.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+
+<!-- Основний контейнер сторінки -->
+<div class="container mt-4">
+    <h1 class="text-center mb-4">📊 Звіт аналізу Python-проєкту</h1>
+
+    <!-- Вкладки -->
+    <ul class="nav nav-tabs" id="analysisTabs" role="tablist">
+        <!-- Вкладки меню -->
+        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#overview">Загальний аналіз</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#visuals">Візуалізація</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#functions">Функції</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#dependencies">Залежності</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#explore">Таблиця</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#evaluation">Оцінка</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#export">Експорт</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#help">Допомога</a></li>
+    </ul>
+
+    <!-- Контейнер вмісту вкладок -->
+    <div class="tab-content p-3 border bg-white shadow">
+
+        <!-- 🔸 Вкладка 1: Загальний огляд -->
+        <div class="tab-pane fade show active" id="overview">
+            <h3 class="mb-4">📊 Основна статистика</h3>
+
+            <!-- Загальні метрики проекту: LOC, LLOC, Коментарі, Класи, Функції, MI -->
+            <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+                <!-- LOC -->
+                <div class="col">
+                    <div class="card h-100 text-center border-primary shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">🔢 LOC</h5>
+                            <p class="card-text fs-5 fw-bold">{{ result.loc }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LLOC -->
+                <div class="col">
+                    <div class="card h-100 text-center border-primary shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">📐 LLOC</h5>
+                            <p class="card-text fs-5 fw-bold">{{ result.lloc }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Коментарі -->
+                <div class="col">
+                    <div class="card h-100 text-center border-primary shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">💬 Коментарі</h5>
+                            <p class="card-text fs-5 fw-bold">{{ result.comments }} ({{ result.comment_ratio }}%)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Функції -->
+                <div class="col">
+                    <div class="card h-100 text-center border-success shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">🧩 Функцій</h5>
+                            <p class="card-text fs-5 fw-bold">{{ result.function_count }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Класи -->
+                <div class="col">
+                    <div class="card h-100 text-center border-success shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">🏗 Класів</h5>
+                            <p class="card-text fs-5 fw-bold">{{ result.class_count }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Індекс підтримуваності -->
+                <div class="col">
+                    <div class="card h-100 text-center border-info shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">🧠 MI</h5>
+                            <p class="card-text fs-5 fw-bold">{{ result.mi }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Блок 2: OOP / Архітектура / Halstead -->
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                <!-- OOP -->
+                <div class="col">
+                    <div class="card h-100 border-secondary shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">🧱 OOP метрики</h5>
+                            {% if result.class_count > 0 %}
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">RFC: {{ result.rfc }}</li>
+                                <li class="list-group-item">WMC: {{ result.wmc }}</li>
+                                <li class="list-group-item">LCOM: {{ result.lcom }}</li>
+                                <li class="list-group-item">NOC: {{ result.noc }}</li>
+                                <li class="list-group-item">CBO: {{ result.cbo }}</li>
+                                <li class="list-group-item">DIT: {{ result.dit }}</li>
+                            </ul>
+                            {% else %}
+                            <p class="text-muted"><em>OOP-метрики недоступні — немає класів</em></p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Архітектурні метрики -->
+                <div class="col">
+                    <div class="card h-100 border-secondary shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">📐 Архітектурні</h5>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">Ca: {{ result.ca }}</li>
+                                <li class="list-group-item">Ce: {{ result.ce }}</li>
+                                <li class="list-group-item">Abstractness: {{ result.abstractness }}</li>
+                                <li class="list-group-item">Instability: {{ result.instability }}</li>
+                                <li class="list-group-item">Distance: {{ result.distance }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Halstead -->
+                <div class="col">
+                    <div class="card h-100 border-secondary shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">🧠 Halstead</h5>
+                            {% if result.halstead and result.halstead.vocabulary | default(0) > 0 %}
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">Vocabulary: {{ result.halstead.vocabulary }}</li>
+                                <li class="list-group-item">Length: {{ result.halstead.length }}</li>
+                                <li class="list-group-item">Volume: {{ result.halstead.volume }}</li>
+                                <li class="list-group-item">Difficulty: {{ result.halstead.difficulty }}</li>
+                                <li class="list-group-item">Effort: {{ result.halstead.effort }}</li>
+                                <li class="list-group-item">Time: {{ result.halstead.time }} сек</li>
+                                <li class="list-group-item">Bugs: {{ result.halstead.bugs }}</li>
+                            </ul>
+                            {% else %}
+                            <p class="text-muted"><em>Halstead-метрики недоступні</em></p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🔸 Вкладка 2: Візуалізація -->
+        <div class="tab-pane fade" id="visuals" role="tabpanel">
+            <h3 class="mb-3">📊 Візуалізація метрик</h3>
+
+            <!-- Дашборд з графіками -->
+            <div class="container-fluid py-4">
+                <div class="row g-4">
+
+                    <!-- MI -->
+                    <div class="col-md-6">
+                        <div class="card shadow-sm rounded-4 border-0">
+                            <div class="card-header bg-white text-center">
+                                <h5 class="card-title text-primary">📊 Maintainability Index</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="miHistogram" height="180"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Halstead Volume -->
+                    <div class="col-md-6">
+                        <div class="card shadow-sm rounded-4 border-0">
+                            <div class="card-header bg-white text-center">
+                                <h5 class="card-title text-primary">🍩 Halstead Volume</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="donutHalsteadVolume" height="180"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Очікувані баги -->
+                    <div class="col-md-6">
+                        <div class="card shadow-sm rounded-4 border-0">
+                            <div class="card-header bg-white text-center">
+                                <h5 class="card-title text-primary">📈 Очікувані баги (Halstead)</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="bugsTrendLine" height="220"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MI vs Складність -->
+                    <div class="col-md-6">
+                        <div class="card shadow-sm rounded-4 border-0">
+                            <div class="card-header bg-white text-center">
+                                <h5 class="card-title text-primary">🎯 Maintainability vs Складність</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="bubbleChart" height="220"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LCOM -->
+                    <div class="col-md-6">
+                        <div class="card shadow-sm rounded-4 border-0">
+                            <div class="card-header bg-white text-center">
+                                <h5 class="card-title text-primary">🧩 LCOM — Зв’язність методів</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="lcomChart" height="220"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Instability -->
+                    <div class="col-md-6">
+                        <div class="card shadow-sm rounded-4 border-0">
+                            <div class="card-header bg-white text-center">
+                                <h5 class="card-title text-primary">📐 Instability</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="instabilityChart" height="220"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CBO -->
+                    <div class="col-md-6 offset-md-3">
+                        <div class="card shadow-sm rounded-4 border-0">
+                            <div class="card-header bg-white text-center">
+                                <h5 class="card-title text-primary">🔗 CBO — Coupling Between Objects</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="cboChart" height="220"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div> <!-- 🔚 Кінець вкладки візуалізації -->
+        </div>
+
+<!-- 🔽 Вкладка з цикломатичною складністю функцій -->
+<div class="tab-pane fade pt-4" id="functions">
+    <h3>📈 Цикломатична складність по функціях</h3>
+
+    <!-- 🔘 Панель керування: фільтр, сортування, масове розгортання -->
+    <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+        <!-- Кнопка: показати/сховати файли без функцій -->
+        <button class="btn btn-outline-secondary" id="toggleNoFunctions" onclick="toggleNoFunctions()">Показати порожні файли</button>
+
+        <!-- Селектор сортування -->
+        <select class="form-select w-auto" id="sortSelector" onchange="sortFiles()">
+            <option value="default">За замовчуванням</option>
+            <option value="name">По алфавіту</option>
+            <option value="function_count">По кількості функцій</option>
+            <option value="complexity">По складності</option>
+        </select>
+
+        <!-- Кнопка зміни напрямку сортування -->
+        <button class="btn btn-outline-primary" id="sortDirection" onclick="toggleSortDirection()" title="Сортування за зростанням">↑</button>
+
+        <!-- Кнопка: згорнути/розгорнути всі картки -->
+        <button class="btn btn-outline-dark ms-auto" id="toggleAllFunctions" onclick="toggleAllFunctions()">Розгорнути всі</button>
+    </div>
+
+    <!-- 📁 Accordion з результатами по кожному файлу -->
+    <div class="accordion" id="functionsAccordion">
+        {% for file in result.files %}
+        <!-- Картка для одного файлу -->
+        <div class="card mb-3 shadow-sm {% if file.cyclomatic_complexity | length == 0 %}bg-light text-muted no-functions{% endif %}">
+            
+            <!-- Заголовок картки -->
+            <div class="card-header d-flex justify-content-between align-items-center"
+                 style="cursor: pointer;"
+                 data-bs-toggle="collapse"
+                 data-bs-target="#functions-{{ loop.index }}"
+                 aria-expanded="false"
+                 aria-controls="functions-{{ loop.index }}">
+                <h5 class="mb-0 {% if file.cyclomatic_complexity | length == 0 %}text-muted{% endif %}">
+                    📁 <strong>{{ file.filename }}</strong> 
+                    {% if file.cyclomatic_complexity %}
+                        <small class="text-muted">({{ file.cyclomatic_complexity | length }} функцій)</small>
+                    {% else %}
+                        <small class="text-muted">(Немає функцій)</small>
+                    {% endif %}
+                </h5>
+            </div>
+
+            <!-- Вміст картки (таблиця з функціями) -->
+            <div id="functions-{{ loop.index }}" class="accordion-collapse collapse">
+                <div class="card-body">
+                    <table class="table table-striped table-hover table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Функція</th>
+                                <th>Складність</th>
+                                <th>Лінія</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if file.cyclomatic_complexity %}
+                                {% for func in file.cyclomatic_complexity %}
+                                    <tr class="{% if func.complexity <= 5 %}table-success{% elif func.complexity <= 10 %}table-warning{% else %}table-danger{% endif %}">
+                                        <td><strong>{{ func.name }}</strong></td>
+                                        <td>{{ func.complexity }}</td>
+                                        <td>{{ func.lineno }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="3" class="text-center">Функції не знайдено в цьому файлі</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- 🎨 Стилі для вкладки функцій -->
+
+
+
+<!-- 📎 Вкладка "Залежності" — відображає імпорт-зв'язки між модулями -->
+<div class="tab-pane fade pt-4" id="dependencies" role="tabpanel" aria-labelledby="dependencies-tab">
+  <h3 class="mb-3">📎 Зв'язки між модулями</h3>
+
+  <!-- 🔗 Інтерактивний граф візуалізації імпортів -->
+  <div class="mt-4">
+    <h5 class="d-flex justify-content-between align-items-center">
+      🔗 Граф імпортів між модулями
+      <!-- Кнопка для розгортання/згортання графа -->
+      <button class="btn btn-sm btn-outline-primary" id="toggleGraphSize">🔍 Розгорнути</button>
+    </h5>
+
+    <!-- Контейнер для графу залежностей -->
+    <div id="dependencyGraphContainer"
+         style="max-height: 280px; overflow: hidden; transition: all 0.3s ease; border-radius: 10px;">
+      <div id="dependencyGraph"
+           style="height: 400px; min-width: 100%;"></div>
+    </div>
+  </div>
+
+  <!-- 🛠 Фільтри над списком модулів -->
+  <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+    <!-- Кнопка для показу/приховування модулів без імпортів -->
+    <button class="btn btn-outline-secondary" id="toggleNoDeps" onclick="toggleNoDeps()">Показати модулі без імпортів</button>
+    <!-- Кнопка для згорнути/розгорнути всі картки -->
+    <button class="btn btn-outline-dark ms-auto" id="toggleAllDeps" onclick="toggleAllDeps()">Розгорнути всі</button>
+  </div>
+
+  <!-- 📦 Accordion з усіма файлами, які показують кого вони імпортують -->
+  <div class="accordion" id="depsAccordion">
+    {% for file in result.files %}
+    <div class="card mb-2 shadow-sm {% if not file.imports %}no-deps bg-light text-muted{% endif %}">
+      
+      <!-- Заголовок картки — ім’я модуля та кількість імпортів -->
+      <div class="card-header d-flex justify-content-between align-items-center"
+           style="cursor: pointer;"
+           data-bs-toggle="collapse"
+           data-bs-target="#deps-{{ loop.index }}"
+           aria-expanded="false">
+        <h6 class="mb-0">
+          📁 <strong>{{ file.module_name }}</strong>
+          {% if file.imports %}
+            <small class="text-muted">({{ file.imports | length }} імпортів)</small>
+          {% else %}
+            <small class="text-muted">(Немає імпортів)</small>
+          {% endif %}
+        </h6>
+      </div>
+
+      <!-- Тіло картки: список імпортів або повідомлення про їх відсутність -->
+      <div id="deps-{{ loop.index }}" class="accordion-collapse collapse">
+        <div class="card-body">
+          {% if file.imports %}
+            <ul class="mb-0">
+              {% for imp in file.imports %}
+              <li>→ {{ imp }}</li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <div class="text-muted fst-italic">Цей модуль не імпортує інші модулі</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- 🎨 CSS для приховування карток без залежностей -->
+
+
+<!-- 📋 Табличне представлення метрик по кожному файлу -->
+<div class="tab-pane fade pt-4" id="explore">
+  <h3>📋 Таблиця метрик по кожному файлу</h3>
+
+  <!-- Таблиця з прокруткою для малих екранів -->
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover text-center">
+      <thead class="table-light">
+        <tr>
+          <th>Файл</th>
+          <th>LOC</th>
+          <th>LLOC</th>
+          <th>% Коментарів</th>
+          <th>MI</th>
+          <th>Volume</th>
+          <th>Bugs</th>
+          <th>LCOM</th>
+          <th>RFC</th>
+          <th>WMC</th>
+          <th>NOC</th>
+          <th>DIT</th>
+          <th>CBO</th>
+          <th>Ce</th>
+          <th>Ca</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for file in result.files %}
+        <tr>
+          <td class="text-start">{{ file.filename }}</td>
+          <td>{{ file.loc }}</td>
+          <td>{{ file.lloc }}</td>
+          <td>{{ file.comment_ratio }}%</td>
+
+          <!-- 🔵 Підсвітка: індекс підтримуваності -->
+          <td class="{% if file.mi < 60 %}table-danger{% elif file.mi < 80 %}table-warning{% else %}table-success{% endif %}">
+            {{ file.mi }}
+          </td>
+
+          <!-- Halstead Volume -->
+          <td>{{ file.halstead.volume if file.halstead }}</td>
+
+          <!-- 🔵 Підсвітка: оцінка потенційних багів -->
+          <td class="{% if file.halstead.bugs > 0.5 %}table-danger{% elif file.halstead.bugs > 0.2 %}table-warning{% else %}table-success{% endif %}">
+            {{ file.halstead.bugs if file.halstead }}
+          </td>
+
+          <!-- 🔵 Підсвітка: LCOM — зв’язність методів -->
+          <td class="{% if file.lcom > 0.7 %}table-danger{% elif file.lcom > 0.4 %}table-warning{% else %}table-success{% endif %}">
+            {{ file.lcom }}
+          </td>
+
+          <!-- Інші OOP-метрики -->
+          <td>{{ file.rfc }}</td>
+          <td>{{ file.wmc }}</td>
+          <td>{{ file.noc }}</td>
+          <td>{{ file.dit }}</td>
+          <td>{{ file.cbo }}</td>
+
+          <!-- Архітектурні метрики -->
+          <td>{{ file.ce }}</td>
+          <td>{{ file.ca }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<!-- 📈 Візуальна та текстова оцінка проекту на основі сукупних метрик -->
+<div class="tab-pane fade pt-4" id="evaluation">
+  <h3 class="mb-3">📈 Загальна оцінка якості коду</h3>
+  <div class="row">
+
+    <!-- 🔸 Radar-графік — індикатор по ключових параметрах -->
+    <div class="col-md-7">
+      <div style="width: 100%; height: 400px;">
+        <canvas id="radarChart" style="width: 100%; height: 100%; background: #fff; border-radius: 12px;"></canvas>
+      </div>
+    </div>
+
+    <!-- 🔸 Текстова оцінка проекту: літера + опис -->
+    <div class="col-md-5">
+      <div class="p-3 border rounded shadow-sm bg-light" id="scoreSummary">
+        <h4>🔤 Сумарна оцінка:
+          <span id="scoreLetter" class="fw-bold text-primary">?</span>
+        </h4>
+        <p id="scoreComment" class="mb-0 text-muted fst-italic">
+          Оцінка ще не завантажена…
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 📥 Експорт результатів аналізу в зовнішні формати -->
+<div class="tab-pane fade pt-4" id="export">
+  <h4>📥 Завантажити результати:</h4>
+
+  <!-- Кнопка для збереження CSV -->
+  <a href="/export/csv" class="btn btn-outline-primary me-2">📄 Експорт у CSV</a>
+
+  <!-- Кнопка для збереження Excel -->
+  <a href="/export/excel" class="btn btn-outline-success">📊 Експорт у Excel</a>
+</div>
+
+
+
+<!-- 📘 Вкладка 7: Допомога — пояснення метрик -->
+<div class="tab-pane fade pt-4" id="help">
+  <h3 class="mb-4">🆘 Пояснення метрик та інтерпретація</h3>
+
+  <!-- 🧩 Accordion для структурованого перегляду -->
+  <div class="accordion accordion-flush" id="helpAccordion">
+
+    <!-- 🔹 Загальні метрики -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="generalMetricsHeader">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                data-bs-target="#generalMetrics" aria-expanded="true" aria-controls="generalMetrics">
+          📊 Загальні метрики
+        </button>
+      </h2>
+      <div id="generalMetrics" class="accordion-collapse collapse show" aria-labelledby="generalMetricsHeader">
+        <div class="accordion-body border rounded p-3 bg-light">
+          <p class="text-muted mb-3">Загальні показники про кількість коду, коментарів та індекс підтримуваності.</p>
+          <ul>
+            <li><b>LOC</b> — всі рядки коду, включаючи коментарі та порожні рядки.</li>
+            <li><b>LLOC</b> — логічні оператори коду (без коментарів та пробілів).</li>
+            <li><b>Коментарі</b> — кількість рядків, які містять пояснення до коду.</li>
+            <li><b>% Коментарів</b> — важливий показник документованості (нормально ≥ 10%).</li>
+            <li><b>Класи / Функції</b> — структура проєкту (більше = складніше).</li>
+            <li><b>MI</b> — Maintainability Index: 0–100 (🔴 < 60, 🟡 60–80, 🟢 > 80).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🔹 Halstead метрики -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="halsteadHeader">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                data-bs-target="#halsteadMetrics" aria-expanded="false" aria-controls="halsteadMetrics">
+          🧠 Halstead та складність
+        </button>
+      </h2>
+      <div id="halsteadMetrics" class="accordion-collapse collapse show" aria-labelledby="halsteadHeader">
+        <div class="accordion-body border rounded p-3 bg-light">
+          <p class="text-muted mb-3">Обчислювальна складність коду за Halstead — чим більше значення, тим важчий для підтримки код.</p>
+          <ul>
+            <li><b>Vocabulary</b> — кількість унікальних операторів та операндів.</li>
+            <li><b>Length</b> — загальна кількість операцій у коді.</li>
+            <li><b>Calculated Length</b> — теоретична мінімальна довжина.</li>
+            <li><b>Volume</b> — об’єм (розмір логіки).</li>
+            <li><b>Difficulty</b> — складність розуміння коду.</li>
+            <li><b>Effort</b> — зусилля для реалізації.</li>
+            <li><b>Time</b> — оціночний час написання (в секундах).</li>
+            <li><b>Bugs</b> — ймовірна кількість дефектів у коді.</li>
+            <li><b>WMC</b> — сумарна цикломатична складність (всі функції).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🔹 OOP метрики -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="oopHeader">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                data-bs-target="#oopMetrics" aria-expanded="false" aria-controls="oopMetrics">
+          🧱 OOP метрики
+        </button>
+      </h2>
+      <div id="oopMetrics" class="accordion-collapse collapse show" aria-labelledby="oopHeader">
+        <div class="accordion-body border rounded p-3 bg-light">
+          <p class="text-muted mb-3">Метрики об'єктно-орієнтованого дизайну — вказують на модульність, зв'язність, наслідування.</p>
+          <ul>
+            <li><b>RFC</b> — Response for Class: скільки методів викликається ззовні.</li>
+            <li><b>LCOM</b> — Lack of Cohesion of Methods: 0 — ідеальна зв'язність, > 0.5 — слабка.</li>
+            <li><b>NOC</b> — Number of Children: кількість класів-нащадків.</li>
+            <li><b>CBO</b> — Coupling Between Objects: скільки зовнішніх класів використовується.</li>
+            <li><b>DIT</b> — Depth of Inheritance Tree: глибина ієрархії класів.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🔹 Архітектурні метрики -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="archHeader">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                data-bs-target="#archMetrics" aria-expanded="false" aria-controls="archMetrics">
+          🏗 Архітектурні метрики
+        </button>
+      </h2>
+      <div id="archMetrics" class="accordion-collapse collapse show" aria-labelledby="archHeader">
+        <div class="accordion-body border rounded p-3 bg-light">
+          <p class="text-muted mb-3">Ці метрики використовуються для аналізу зв’язності між модулями — наскільки система стабільна та розширювана.</p>
+          <ul>
+            <li><b>Ca</b> — Afferent Coupling: скільки інших модулів залежить від цього.</li>
+            <li><b>Ce</b> — Efferent Coupling: від скількох модулів залежить цей.</li>
+            <li><b>Abstractness</b> — частка абстрактних класів у модулі.</li>
+            <li><b>Instability</b> — ступінь залежності від інших (0 — стабільний, 1 — нестабільний).</li>
+            <li><b>Distance</b> — наскільки модуль віддалений від ідеального балансу між абстракцією та стабільністю.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🔹 Інтерпретація кольорів -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="colorHeader">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                data-bs-target="#colorInterpretation" aria-expanded="false" aria-controls="colorInterpretation">
+          🎨 Інтерпретація кольорів
+        </button>
+      </h2>
+      <div id="colorInterpretation" class="accordion-collapse collapse show" aria-labelledby="colorHeader">
+        <div class="accordion-body border rounded p-3 bg-light">
+          <ul>
+            <li><span class="text-success">🟢 Добре</span> — значення в межах норми</li>
+            <li><span class="text-warning">🟡 Помірний ризик</span> — вимагає уваги</li>
+            <li><span class="text-danger">🔴 Погано</span> — критично, бажано виправити</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🔹 Таблиця скорочень -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="abbrHeader">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                data-bs-target="#abbrTable" aria-expanded="false" aria-controls="abbrTable">
+          📚 Список скорочень
+        </button>
+      </h2>
+      <div id="abbrTable" class="accordion-collapse collapse show" aria-labelledby="abbrHeader">
+        <div class="accordion-body border rounded p-3 bg-light">
+          <table class="table table-sm">
+            <thead><tr><th>Скорочення</th><th>Розшифровка</th></tr></thead>
+            <tbody>
+              <tr><td>LOC</td><td>Lines of Code</td></tr>
+              <tr><td>LLOC</td><td>Logical Lines of Code</td></tr>
+              <tr><td>MI</td><td>Maintainability Index</td></tr>
+              <tr><td>RFC</td><td>Response for Class</td></tr>
+              <tr><td>LCOM</td><td>Lack of Cohesion of Methods</td></tr>
+              <tr><td>NOC</td><td>Number of Children</td></tr>
+              <tr><td>CBO</td><td>Coupling Between Objects</td></tr>
+              <tr><td>DIT</td><td>Depth of Inheritance Tree</td></tr>
+              <tr><td>Ca</td><td>Afferent Coupling</td></tr>
+              <tr><td>Ce</td><td>Efferent Coupling</td></tr>
+              <tr><td>WMC</td><td>Weighted Method Count</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div> <!-- 🧩 Кінець accordion -->
+</div> <!-- 🔚 Кінець вкладки Допомога -->
+</div> <!-- Закриття контейнера з усіма вкладками -->
+</div> <!-- Закриття .container -->
+</div> <!-- Закриття .tab-content -->
+
+<!-- 🔙 Кнопка повернення на головну сторінку -->
+<div class="text-center mt-4">
+  <a href="/" class="btn btn-outline-primary">🔙 Назад</a>
+</div>
+
+<!-- 📦 Вбудована передача результатів аналізу у форматі JSON -->
+<script id="result-data" type="application/json">
+  {{ result | tojson | safe }}
+</script>
+
+<!-- 🧠 Парсинг результатів і передача в глобальну змінну JS -->
+<script>
+  const json = document.getElementById("result-data").textContent;
+  window.analysisResult = JSON.parse(json); // використовується в інших скриптах (charts, dependencies, тощо)
+</script>
+
+<!-- 📊 Підключення скрипту для побудови графіків -->
+<script src="/static/js/analysis_charts.js"></script>
+
+<!-- ⚙️ Підключення логіки для вкладки Функції (сортування, розгортання тощо) -->
+<script src="/static/js/functions.js"></script>
+
+<!-- 📎 Підключення логіки для вкладки Залежності (граф імпортів, фільтрація) -->
+<script src="/static/js/dependencies_view.js"></script>
+
+</body>
+</html>
+
+

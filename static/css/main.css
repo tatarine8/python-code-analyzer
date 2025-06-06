@@ -1,0 +1,59 @@
+/* 🎨 Основні стилі для result.html */
+
+/* 🔹 Приховування карток без залежностей/функцій */
+.no-deps,
+.no-functions {
+    display: none;
+}
+
+/* 🔹 Картки без функцій — сірий вигляд */
+.bg-light.text-muted {
+    background-color: #f8f9fa !important;
+    color: #6c757d !important;
+}
+
+/* 🔹 Стилі таблиць */
+.table th,
+.table td {
+    text-align: center;
+}
+
+/* 🔹 Розміри select */
+.form-select {
+    width: auto;
+    max-width: 200px;
+}
+
+/* 🔹 Кнопки керування */
+.btn-outline-secondary,
+.btn-outline-primary {
+    padding: 8px 15px;
+    font-weight: bold;
+    margin: 0 5px;
+}
+
+/* 🔹 Accordion картки */
+.accordion .card {
+    margin-bottom: 10px;
+}
+
+.card-body {
+    padding: 15px;
+}
+
+.card-header {
+    font-weight: bold;
+}
+
+/* 🔹 Граф залежностей */
+#dependencyGraphContainer {
+    max-height: 280px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border-radius: 10px;
+}
+
+#dependencyGraph {
+    height: 400px;
+    min-width: 100%;
+}

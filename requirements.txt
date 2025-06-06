@@ -1,0 +1,6 @@
+flask
+radon
+pandas
+openpyxl
+waitress
+

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Аналізатор Python-коду</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+
+  <!-- Заголовок -->
+  <h1 class="text-center mb-4">🔍 Аналізатор якості Python-коду / проєктів</h1>
+
+  <!-- Форма завантаження -->
+  <form method="post" action="/analyze" enctype="multipart/form-data"
+        class="mb-4 border rounded p-4 bg-white shadow" id="uploadForm">
+
+    <!-- Вибір типу вхідного файлу: окремий .py або архів проєкту .zip -->
+    <div class="mb-3">
+      <label class="form-label">Що аналізуємо?</label><br>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="mode" id="mode_file" value="file" checked>
+        <label class="form-check-label" for="mode_file">Окремий файл (.py)</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="mode" id="mode_project" value="project">
+        <label class="form-check-label" for="mode_project">Проєкт (.zip)</label>
+      </div>
+    </div>
+
+    <!-- Поле вибору файлу -->
+    <div class="mb-3">
+      <label for="code_file" class="form-label">Оберіть файл:</label>
+      <input type="file" class="form-control" id="code_file" name="code_file" required>
+    </div>
+
+    <!-- Прогрес-бар (опціонально, наразі прихований) -->
+    <!--
+    <div class="progress mt-3" style="height: 6px; display: none;">
+      <div id="realProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%;"></div>
+    </div>
+    -->
+
+    <!-- Кнопка запуску аналізу -->
+    <button type="submit" class="btn btn-primary mt-3">Аналізувати</button>
+  </form>
+</div>
+
+<!-- Скрипт для зміни формату завантаження (фільтрація MIME) -->
+<script>
+function toggleInputType() {
+  const type = document.querySelector('input[name="mode"]:checked').value;
+  const fileInput = document.getElementById('code_file');
+
+  if (type === 'file') {
+    fileInput.accept = '.py';
+  } else {
+    fileInput.accept = '.zip';
+  }
+}
+
+// Призначення обробників після завантаження DOM
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById('mode_file').addEventListener('change', toggleInputType);
+  document.getElementById('mode_project').addEventListener('change', toggleInputType);
+  toggleInputType(); // первинна ініціалізація
+});
+</script>
+</body>
+</html>
